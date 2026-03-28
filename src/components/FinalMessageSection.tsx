@@ -49,7 +49,13 @@ const Page = React.forwardRef<HTMLDivElement, any>(({ number, children, imageSrc
              <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-rose-400 shadow-lg border-2 border-rose-300 z-20" />
              <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-[2px] h-3 bg-gray-400 z-10" />
              
-             <img src={imageSrc} className="w-full h-full object-cover border-[6px] md:border-[8px] border-white shadow-lg pointer-events-none" style={{ maxHeight: '100%' }} />
+             <img 
+               src={imageSrc} 
+               loading="lazy"
+               decoding="async"
+               className="w-full h-full object-cover border-[6px] md:border-[8px] border-white shadow-lg pointer-events-none" 
+               style={{ maxHeight: '100%' }} 
+             />
           </div>
         )}
         <div className="font-dancing-script text-lg sm:text-xl md:text-2xl text-stone-600 leading-snug md:leading-relaxed flex-grow text-center flex flex-col justify-center drop-shadow-sm px-1 md:px-2 overflow-hidden">

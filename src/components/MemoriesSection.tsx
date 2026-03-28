@@ -33,16 +33,16 @@ function CarouselItem({ mem, index, numItems, scrollPos }: { mem: any, index: nu
       const targetZ = -absDelta * 3.5;
       const targetRotY = -Math.sign(delta) * Math.min(absDelta * 0.7, 1.2);
 
-      groupRef.current.position.x = THREE.MathUtils.lerp(groupRef.current.position.x, targetX, 0.1);
-      groupRef.current.position.z = THREE.MathUtils.lerp(groupRef.current.position.z, targetZ, 0.1);
-      groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, targetRotY, 0.1);
+      // Super-fast, snappy lerp
+      groupRef.current.position.x = THREE.MathUtils.lerp(groupRef.current.position.x, targetX, 0.25);
+      groupRef.current.position.z = THREE.MathUtils.lerp(groupRef.current.position.z, targetZ, 0.25);
+      groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, targetRotY, 0.25);
       
       const opacity = THREE.MathUtils.clamp(1 - absDelta * 0.25, 0, 1);
       
       if (htmlRef.current) {
         htmlRef.current.style.opacity = String(opacity);
-        const blurValue = absDelta > 0.5 ? (absDelta - 0.5) * 4 : 0;
-        htmlRef.current.style.filter = `blur(${blurValue}px)`;
+        // CRITICAL PERFORMANCE FIX: Removed CSS blur() which causes massive layout thrashing on mobile browsers.
         htmlRef.current.style.zIndex = String(Math.round(100 - absDelta * 10));
       }
     }
@@ -65,6 +65,8 @@ function CarouselItem({ mem, index, numItems, scrollPos }: { mem: any, index: nu
           <img 
             src={mem.url} 
             alt="memory" 
+            loading={index < 2 ? "eager" : "lazy"}
+            decoding={index < 2 ? "auto" : "async"}
             className="w-full h-[250px] md:h-[300px] object-cover rounded shadow-inner mb-3 pointer-events-none" 
           />
           <p className="font-inter font-bold text-lg md:text-xl text-rose-700 text-center leading-snug w-full flex-grow flex items-center justify-center break-words px-2 drop-shadow-sm">
@@ -81,7 +83,8 @@ function Carousel({ targetIndex }: { targetIndex: React.MutableRefObject<number>
   const numItems = memories.length;
 
   useFrame((state, delta) => {
-    scrollPos.current = THREE.MathUtils.lerp(scrollPos.current, targetIndex.current, delta * 5);
+    // Increased target follow speed drastically for instant, snappy feeling
+    scrollPos.current = THREE.MathUtils.lerp(scrollPos.current, targetIndex.current, delta * 12);
   });
 
   return (
@@ -95,22 +98,29 @@ function Carousel({ targetIndex }: { targetIndex: React.MutableRefObject<number>
 
 export default function MemoriesSection() {
   const targetIndex = useRef(0);
+  const startIndex = useRef(0);
   const [isSwiping, setIsSwiping] = useState(false);
 
   const handlers = useSwipeable({
-    onSwipedLeft: () => {
-      targetIndex.current += 1;
-      setIsSwiping(false);
-    },
-    onSwipedRight: () => {
-      targetIndex.current -= 1;
-      setIsSwiping(false);
-    },
-    onSwiping: () => {
+    onSwipeStart: () => {
+      startIndex.current = targetIndex.current;
       setIsSwiping(true);
     },
+    onSwiping: (e) => {
+      // 1:1 Instant Tracking - screen movement maps directly to cards shifting
+      const mapRatio = window.innerWidth > 600 ? 500 : 250;
+      targetIndex.current = startIndex.current - (e.deltaX / mapRatio);
+    },
+    onSwiped: (e) => {
+      // Add natural momentum push and snap to nearest integer!
+      const momentum = (e.velocity * Math.sign(-e.deltaX)) * 1.5;
+      targetIndex.current = Math.round(targetIndex.current + momentum);
+      setIsSwiping(false);
+    },
     preventScrollOnSwipe: true,
-    trackMouse: true
+    trackMouse: true,
+    trackTouch: true,
+    delta: 5
   });
 
   return (
