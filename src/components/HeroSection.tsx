@@ -23,15 +23,20 @@ export default function HeroSection({ onScrollDown }: { onScrollDown: () => void
           I made something for you...
         </p>
 
-        <motion.button
-          onClick={onScrollDown}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="group flex flex-col items-center justify-center gap-2 bg-white/40 backdrop-blur-md border border-white/50 px-8 py-4 rounded-full shadow-lg text-rose-500 font-medium transition-all hover:bg-white/60 hover:shadow-xl hover:-translate-y-1"
-        >
-          <span>Open it</span>
-          <ChevronDown className="w-5 h-5 group-hover:translate-y-1 transition-transform" />
-        </motion.button>
+        <div className="relative group mt-4">
+          {/* Eye-catching soft pulsing glow behind the button */}
+          <div className="absolute -inset-1 bg-gradient-to-r from-rose-300 to-peach-300 rounded-full blur-md opacity-60 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-pulse" />
+          
+          <motion.button
+            onClick={onScrollDown}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="relative flex flex-col items-center justify-center gap-2 bg-white/70 backdrop-blur-lg border border-white/80 px-10 py-5 rounded-full shadow-xl text-rose-600 font-bold tracking-widest uppercase transition-all hover:bg-white"
+          >
+            <span>Open it</span>
+            <ChevronDown className="w-6 h-6 animate-bounce mt-1" />
+          </motion.button>
+        </div>
       </motion.div>
     </section>
   );
