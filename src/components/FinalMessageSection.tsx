@@ -5,28 +5,39 @@ import HTMLFlipBook from 'react-pageflip';
 import { Heart } from 'lucide-react';
 
 const PageCover = React.forwardRef<HTMLDivElement, any>((props, ref) => {
+  const isBack = props.isBack;
+  
   return (
-    <div className="w-full h-full bg-rose-200 border-l-[12px] border-rose-400 shadow-2xl rounded-r-3xl flex flex-col items-center justify-center relative overflow-hidden" ref={ref} data-density="hard">
-      {/* Texture overlay */}
-      <div className="absolute inset-0 opacity-30 bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')]" />
+    <div 
+       className={`w-full h-full bg-red-800 border-[8px] border-red-900 shadow-2xl relative overflow-hidden flex items-center justify-center p-3 ${
+         isBack ? 'border-r-[18px] rounded-l-3xl' : 'border-l-[18px] rounded-r-3xl'
+       }`} 
+       ref={ref} 
+       data-density="hard"
+    >
+      {/* Texture overlay to make the red notebook look physical */}
+      <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/leather.png')] pointer-events-none" />
       
-      <div className="z-10 flex flex-col items-center gap-8 drop-shadow-md px-6">
-        <h1 className="text-4xl md:text-5xl font-dancing-script text-rose-700 text-center font-bold px-2">
-          Our Special Memories
-        </h1>
-        <div className="flex gap-3 items-center mt-2 group">
-          <Heart className="w-8 h-8 text-rose-500 fill-rose-500 drop-shadow-md transition-transform group-hover:scale-110" />
-          <span className="text-5xl drop-shadow-md transition-transform group-hover:scale-125 mx-2">🌹</span>
-          <Heart className="w-8 h-8 text-rose-500 fill-rose-500 drop-shadow-md transition-transform group-hover:scale-110" />
-        </div>
-      </div>
+      {/* Subtle spine shadow depending on whether it's front or back */}
+      {isBack ? (
+        <div className="absolute right-0 top-0 bottom-0 w-4 bg-black/40 z-10 pointer-events-none shadow-[-2px_0_10px_rgba(0,0,0,0.5)]" />
+      ) : (
+        <div className="absolute left-0 top-0 bottom-0 w-4 bg-black/40 z-10 pointer-events-none shadow-[2px_0_10px_rgba(0,0,0,0.5)]" />
+      )}
+      
+      {/* The actual user image applied perfectly onto the cover */}
+      <img 
+         src={props.imageSrc || "/images/book-cover.png"} 
+         alt="Book Cover" 
+         className="w-full h-full object-cover rounded-sm z-20 shadow-inner relative"
+      />
     </div>
   );
 });
 
 const Page = React.forwardRef<HTMLDivElement, any>(({ number, children, imageSrc }, ref) => {
   return (
-    <div className="w-full h-full bg-amber-50 shadow-inner flex flex-col p-6 relative border-r border-amber-100" ref={ref}>
+    <div className="w-full h-full bg-amber-50 shadow-inner flex flex-col p-3 md:p-6 relative border-r border-amber-100 overflow-hidden" ref={ref}>
       {/* Soft page texture */}
       <div className="absolute inset-0 opacity-30 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')]" />
       
@@ -38,13 +49,13 @@ const Page = React.forwardRef<HTMLDivElement, any>(({ number, children, imageSrc
              <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-rose-400 shadow-lg border-2 border-rose-300 z-20" />
              <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-[2px] h-3 bg-gray-400 z-10" />
              
-             <img src={imageSrc} className="w-full h-full object-cover border-[8px] border-white shadow-lg pointer-events-none" style={{ maxHeight: '100%' }} />
+             <img src={imageSrc} className="w-full h-full object-cover border-[6px] md:border-[8px] border-white shadow-lg pointer-events-none" style={{ maxHeight: '100%' }} />
           </div>
         )}
-        <div className="font-dancing-script text-2xl md:text-3xl text-stone-600 leading-relaxed flex-grow text-center flex flex-col justify-center drop-shadow-sm px-2 overflow-y-auto">
+        <div className="font-dancing-script text-lg sm:text-xl md:text-2xl text-stone-600 leading-snug md:leading-relaxed flex-grow text-center flex flex-col justify-center drop-shadow-sm px-1 md:px-2 overflow-hidden">
           {children}
         </div>
-        <div className="text-center font-inter text-stone-400 text-sm mt-auto pt-4 border-t border-stone-200/50 shrink-0">
+        <div className="text-center font-inter text-stone-400 text-xs md:text-sm mt-auto pt-2 border-t border-stone-200/50 shrink-0">
            - {number} -
         </div>
       </div>
@@ -103,7 +114,7 @@ export default function FinalMessageSection() {
                className="book-wrapper mx-auto"
                style={{ boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}
             >
-              <PageCover>Book cover</PageCover>
+              <PageCover />
               
               <Page number={1} imageSrc="/images/2.jpg">
                 I’m really lucky to have you. You mean everything to me.
@@ -120,6 +131,8 @@ export default function FinalMessageSection() {
               <Page number={4}>
                 Happy Birthday, baby. I love you!
               </Page>
+
+              <PageCover isBack={true} imageSrc="/images/background1.png" />
   
             </Book>
           </div>
